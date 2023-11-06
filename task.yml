@@ -1,0 +1,72 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: Installing dnf and epel-release
+    yum:
+      name:
+        - epel-release
+        - dnf
+    when: ansible_distribution == "CentOS"
+
+  - name: Update and upgrade remote CentOS server
+    dnf:
+      update_cache: yes
+      name:  "*"
+      state: latest
+    when: ansible_distribution == "CentOS"
+
+  - name: Installing installations dependencies
+    apt:
+      name:
+        - wget
+      state: latest
+    when: ansible_distribution == "Ubuntu"
+  
+  - name: Dpkg fixing in Ubuntu Servers
+    shell: |
+      dpkg --configure -a
+    when: ansible_distribution == "Ubuntu"
+
+  - name: Update and upgrade remote in Ubuntu servers
+    apt:
+      update_cache: yes
+      upgrade: yes
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: elk_centos 
+  become: true
+  roles:
+    - elk_centos
+
+- hosts: elk_ubuntu
+  become: true
+  roles:
+    - elk_ubuntu
+
+- hosts: nagios_ubuntu
+  become: true
+  roles:
+    - nagios_ubuntu
+
+- hosts: ipg_centos
+  become: true
+  roles: 
+    - ipg_centos
+
+- hosts: ipg_ubuntu
+  become: true
+  roles: 
+    - ipg_ubuntu
+
+- hosts: ls_centos
+  become: true
+  roles: 
+    - ls_centos
+
+- hosts: ls_ubuntu
+  become: true
+  roles: 
+    - ls_ubuntu
